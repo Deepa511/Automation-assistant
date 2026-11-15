@@ -1,0 +1,4 @@
+ollama
+chromadb
+gradio
+pypdf
