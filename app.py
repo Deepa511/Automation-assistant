@@ -15,10 +15,20 @@ NOT_FOUND = "I couldn't find that in the document."
 SYSTEM_PROMPT = (
     "You answer questions using ONLY the context provided. "
     f"If the context does not contain the answer, reply exactly: {NOT_FOUND} "
-    "Do not use outside knowledge. Cite the page like [page 12]."
+    "Do not use outside knowledge. For procedures, give every step in order. "
+    "Cite the section and page like [7.5 Replacing the camera, pages 13-14]."
 )
 
 collection = chromadb.PersistentClient(path=str(DB_DIR)).get_collection("docs")
+
+
+def pages(m: dict) -> str:
+    a, b = m["page_start"], m["page_end"]
+    return f"page {a}" if a == b else f"pages {a}-{b}"
+
+
+def label(m: dict) -> str:
+    return f"{m['source']}, {m['heading']}, {pages(m)}"
 
 
 def answer(question: str, history) -> str:
@@ -29,7 +39,7 @@ def answer(question: str, history) -> str:
     if not docs or min(dists) > MAX_DISTANCE:
         return NOT_FOUND
 
-    context = "\n\n".join(f"[page {m['page']}] {d}" for d, m in zip(docs, metas))
+    context = "\n\n".join(f"[{label(m)}]\n{d}" for d, m in zip(docs, metas))
     reply = ollama.chat(
         model=CHAT_MODEL,
         options={"temperature": 0.1},
@@ -41,7 +51,7 @@ def answer(question: str, history) -> str:
 
     if NOT_FOUND in reply:
         return NOT_FOUND
-    sources = sorted({f"{m['source']} p.{m['page']}" for m in metas})
+    sources = sorted({f"{m['source']} - {m['heading']} ({pages(m)})" for m in metas})
     return f"{reply}\n\nSources: {', '.join(sources)}"
 
 
