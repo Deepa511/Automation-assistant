@@ -56,9 +56,8 @@ def clean_history(history) -> list[dict]:
 
 
 def standalone_question(question: str, history: list[dict]) -> str:
-    """Rewrite a follow-up ("What must be done afterwards?") into a self-contained question."""
-    if not history:
-        return question
+    """Rewrite a follow-up ("What must be done afterwards?") into a self-contained question.
+    Only called when there is history."""
     # the "Sources:" list is noise for rewriting, so drop it from the assistant messages
     chat = "\n".join(f"{m['role']}: {m['content'].split('Sources:')[0].strip()}"
                      for m in history[-HISTORY_FOR_REWRITE * 2:])
@@ -121,23 +120,24 @@ def answer(question: str, history):
     t = time.perf_counter()
     q_emb = ollama.embed(model=EMBED_MODEL, input=search_question)["embeddings"]
     res = collection.query(query_embeddings=q_emb, n_results=TOP_K)
-    hits = list(zip(res["documents"][0], res["metadatas"][0], res["distances"][0]))
+    candidates = list(zip(res["documents"][0], res["metadatas"][0], res["distances"][0]))
     marks["retrieval"] = time.perf_counter() - t
     steps[-1] = f"✓ Retrieving chunks ({marks['retrieval']:.1f} s)"
 
-    if not hits or hits[0][2] > MAX_DISTANCE:
+    if not candidates or candidates[0][2] > MAX_DISTANCE:
         steps.append("✗ No close match in the documents")
         total = time.perf_counter() - t0
         yield render(steps, f"Done in {total:.1f} s", "done", NOT_FOUND + footer(total, marks))
         return
     # keep only chunks close to the best one: a shorter prompt is much faster on CPU
-    hits = [h for h in hits if h[2] <= hits[0][2] + RELATIVE_CUTOFF]
-    steps += [f"   → {m['heading']} ({pages(m)})" for _, m, _ in hits]
+    best = candidates[0][2]
+    hits = [(d, m) for d, m, dist in candidates if dist <= best + RELATIVE_CUTOFF]
+    steps += [f"   → {m['heading']} ({pages(m)})" for _, m in hits]
     steps.append("⏳ Generating answer…")
     yield render(steps, "Working…", "pending")
 
     t = time.perf_counter()
-    context = "\n\n".join(f"[{label(m)}]\n{d}" for d, m, _ in hits)
+    context = "\n\n".join(f"[{label(m)}]\n{d}" for d, m in hits)
     stream = ollama.chat(
         model=CHAT_MODEL,
         options={"temperature": 0.1, "num_predict": NUM_PREDICT},
@@ -160,7 +160,7 @@ def answer(question: str, history):
     if NOT_FOUND in reply:
         yield render(steps, f"Done in {total:.1f} s", "done", NOT_FOUND + footer(total, marks))
         return
-    sources = sorted({f"{m['source']} - {m['heading']} ({pages(m)})" for _, m, _ in hits})
+    sources = sorted({f"{m['source']} - {m['heading']} ({pages(m)})" for _, m in hits})
     yield render(steps, f"Done in {total:.1f} s", "done",
                  f"{reply}\n\nSources: {', '.join(sources)}" + footer(total, marks))
 

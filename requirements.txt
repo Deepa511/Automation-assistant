@@ -1,4 +1,4 @@
 ollama
 chromadb
-gradio
+gradio>=6
 pypdf

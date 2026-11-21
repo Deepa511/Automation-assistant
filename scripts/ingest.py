@@ -45,16 +45,12 @@ def page_lines(reader: PdfReader) -> list[list[str]]:
     return [[] if sum(bool(DOT_LEADER_RE.match(l)) for l in lines) >= 5 else lines for lines in cleaned]
 
 
-def is_heading(line: str) -> bool:
-    return bool(HEADING_RE.match(line)) and "...." not in line
-
-
 def split_sections(pages: list[list[str]]) -> list[dict]:
     """Each section: {"heading": str, "lines": [(page_no, text), ...]}."""
     sections = [{"heading": "Front matter", "lines": []}]
     for page_no, lines in enumerate(pages, start=1):
         for line in lines:
-            if is_heading(line):
+            if HEADING_RE.match(line):
                 sections.append({"heading": line, "lines": []})
             else:
                 sections[-1]["lines"].append((page_no, line))
