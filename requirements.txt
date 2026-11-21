@@ -2,4 +2,3 @@ ollama
 chromadb
 gradio
 pypdf
-rank_bm25

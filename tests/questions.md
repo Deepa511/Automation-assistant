@@ -36,7 +36,7 @@ Each sequence is asked in one chat, in order, without restarting. Every question
 
 **C. Calibration**
 1. How often must a nutrunner be calibrated?
-2. Who does that? (expected: Calibration lab, from the table in 7.2 Maintenance plan. **Known weak case:** the right chunk is retrieved with hybrid search, but the 7B model misreads the flattened table and names the wrong team.)
+2. Who does that? (follow-up about the nutrunner calibration, see the maintenance plan)
 
 **D. Backups**
 1. What is the known issue with automatic backups in CCP 3.4?
