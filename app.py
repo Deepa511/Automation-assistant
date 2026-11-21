@@ -166,4 +166,4 @@ def answer(question: str, history):
 
 
 if __name__ == "__main__":
-    gr.ChatInterface(answer, title="Document Q&A (local RAG)").launch()
+    gr.ChatInterface(answer, title=f"Document Q&A (local RAG), trace style: {TRACE_STYLE}").launch()
