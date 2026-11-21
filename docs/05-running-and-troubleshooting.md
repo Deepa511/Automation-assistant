@@ -40,6 +40,8 @@ Two settings are read from environment variables when the app starts:
 
 Set the variable, then start the app in the **same PowerShell window**. A setting made in another window has no effect.
 
+Optional privacy settings (see the small print in [04](04-design-decisions.md#local-and-free-only)): `$env:ANONYMIZED_TELEMETRY="False"` and `$env:GRADIO_ANALYTICS_ENABLED="False"` switch off the anonymous usage statistics that ChromaDB and Gradio may send by default.
+
 The other tuning values are constants at the top of `app.py` (and `scripts/ingest.py` for chunking):
 
 | Constant | Now | What it controls | Effect of raising it |

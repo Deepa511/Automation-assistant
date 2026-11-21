@@ -18,4 +18,4 @@ When something was never tested, the text says **not tested**. For example, we n
 
 ## The project in one paragraph
 
-A chat assistant that answers questions about technical manuals (here: five fictional manuals about a tightening controller, robot vision and a fastening cell). It finds the relevant passages in the manuals, lets a locally running AI model write an answer from only those passages, and shows where the answer came from. If the manuals do not contain the answer, it says so. Everything runs on one laptop, for free, with no data leaving the machine.
+A chat assistant that answers questions about technical manuals (here: five fictional manuals about a tightening controller, robot vision and a fastening cell). It finds the relevant passages in the manuals, lets a locally running AI model write an answer from only those passages, and shows where the answer came from. If the manuals do not contain the answer, it says so. Everything runs on one laptop, for free, with no cloud AI service involved (the small print is in [Design decisions](04-design-decisions.md#local-and-free-only)).

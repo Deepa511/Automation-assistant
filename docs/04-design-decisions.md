@@ -19,6 +19,12 @@ Contents: [Local and free only](#local-and-free-only) · [Ollama](#ollama-to-run
 - **Why:** it is a rule of the project (see `CLAUDE.md`). The manuals in a real setting would be confidential, so keeping all text on the machine avoids sending it to a third party. It also keeps the prototype free and usable offline.
 - **Trade-off:** speed and quality. A laptop without a graphics card writes at about 5 tokens per second (a token is a small piece of text, about three quarters of a word), and a small local model is less capable than the largest online ones.
 - **Alternatives:** an online model API (fast and strong, but costs money per use and sends text to the provider); a local model on a machine with a good graphics card (fast, but not available here). Switching to an online model would change two functions in `app.py`, but would break the "free and local" rule.
+- **Small print:** "local" means the AI models and the documents stay on the machine. It does **not** mean "100% safe" or "never touches the internet":
+  - Installing software and downloading models needs the internet.
+  - Some libraries used here (ChromaDB and Gradio) may send anonymous usage statistics by default. They do not send the documents. This was **not checked on this machine**. They can be switched off with the environment variables `ANONYMIZED_TELEMETRY=False` (ChromaDB) and `GRADIO_ANALYTICS_ENABLED=False` (Gradio).
+  - Ollama can also offer optional cloud-hosted models. This project uses only local ones.
+  - The manuals' text sits unencrypted on disk in `data/raw/` and `chroma_db/`. Do not use the app's "share" option, which would create a public link.
+  - Before using real company documents, check your organisation's policy: this prototype was built and tested only with fictional manuals.
 
 ## Ollama to run the models
 

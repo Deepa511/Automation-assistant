@@ -87,7 +87,7 @@ sequenceDiagram
 | **Gradio** | A Python toolkit for web screens | The chat page, streaming text, progress bubble | Inside `app.py`, port 7860 |
 | **pypdf** | A PDF text reader | Extracts text from the manuals during ingest | Inside `ingest.py` |
 
-Nothing here talks to the internet while the chatbot runs. The internet is only needed to install the software and download the models once.
+The chatbot never sends your questions or the manuals' text to a cloud AI service. The internet is needed to install the software and download the models once. One caveat: some of the libraries used (ChromaDB, Gradio) may send anonymous usage statistics by default, but not documents. That was not checked on this machine; see the small print in [Design decisions](04-design-decisions.md#local-and-free-only).
 
 ## Folders and files
 

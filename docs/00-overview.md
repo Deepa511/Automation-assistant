@@ -58,11 +58,11 @@ This refusal is deliberate. The chatbot is meant to be trustworthy about *its do
 | Handle follow-up questions in the same chat | Guarantee it is right. It can still misread a passage, especially tables |
 | Say "I couldn't find that" for off-topic questions | Compare several documents reliably, or reason over long chains of facts |
 | Show what it is doing while it works, and how long it took | Answer quickly. On this laptop an answer takes roughly 20 to 60 seconds |
-| Run fully offline on one laptop, for free | Serve many users at once |
+| Run on one laptop, for free, with no cloud AI service (the internet is needed only to install the software and download the models) | Serve many users at once |
 
 ## Why does it run on the laptop and not in the cloud?
 
-The project rules ask for free and local only. Technical manuals are often confidential, and a local setup means nothing is sent to an outside service. The price is speed: a laptop without a graphics card writes text slowly. See [Why local](04-design-decisions.md#local-and-free-only).
+The project rules ask for free and local only. Technical manuals are often confidential, and a local setup means your questions and the manuals' text are never sent to an AI cloud service (see the small print in [Why local](04-design-decisions.md#local-and-free-only)). The price is speed: a laptop without a graphics card writes text slowly. See [Why local](04-design-decisions.md#local-and-free-only).
 
 ## At a glance
 
