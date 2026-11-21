@@ -1,5 +1,6 @@
 """Gradio chat app: answers questions only from the ingested documents."""
 import os
+import re
 import time
 from pathlib import Path
 
@@ -19,12 +20,15 @@ RELATIVE_CUTOFF = 0.1  # drop chunks more than this farther away than the best c
 HISTORY_FOR_REWRITE = 4  # exchanges (user + assistant) used to rewrite a follow-up question
 HISTORY_FOR_ANSWER = 2   # exchanges passed to the answering call for conversational context
 NOT_FOUND = "I couldn't find that in the document."
+SOURCES_MARK = "\n\n**Sources**"  # starts the sources block the app appends to every answer
 
 SYSTEM_PROMPT = (
     "You answer questions using ONLY the context provided. "
     f"If the context does not contain the answer, reply exactly: {NOT_FOUND} "
     "Earlier messages are only for conversational context; the answer must come from the context. "
     "Do not use outside knowledge. For procedures, give every step in order. "
+    "Do not repeat the same information within one answer, but always include every fact the question "
+    "asks for, even if an earlier message mentioned it. "
     "Cite the section and page like [7.5 Replacing the camera, pages 13-14]."
 )
 
@@ -40,6 +44,23 @@ def label(m: dict) -> str:
     return f"{m['source']}, {m['heading']}, {pages(m)}"
 
 
+def format_sources(hits) -> str:
+    """Sources block: identical (document, section, pages) entries appear once, grouped by document."""
+    unique = {(m["source"], m["page_start"], m["page_end"], m["heading"]): m for _, m in hits}
+    by_doc: dict[str, list[str]] = {}
+    for key in sorted(unique):
+        m = unique[key]
+        by_doc.setdefault(m["source"], []).append(f"{m['heading']} ({pages(m)})")
+    lines = [f"- *{Path(doc).stem.replace('_', ' ')}*: {', '.join(parts)}" for doc, parts in by_doc.items()]
+    return f"{SOURCES_MARK}\n\n" + "\n".join(lines)
+
+
+def without_sources(text: str) -> str:
+    """Cut a "Sources: ..." list the model wrote itself; the app adds its own."""
+    m = re.search(r"(?im)^\W*sources?\W*:", text)
+    return text[:m.start()].rstrip() if m else text
+
+
 def clean_history(history) -> list[dict]:
     """Gradio history -> [{"role", "content"}] with plain-text content."""
     out = []
@@ -49,7 +70,7 @@ def clean_history(history) -> list[dict]:
         content = m["content"]
         if isinstance(content, list):  # Gradio may send a list of parts
             content = " ".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in content)
-        content = content.split("\n\n⏱")[0]  # drop the timing footer
+        content = content.split("\n\n⏱")[0].split(SOURCES_MARK)[0]  # drop the timing footer and the sources block
         if m["role"] in ("user", "assistant") and content.strip():
             out.append({"role": m["role"], "content": content})
     return out
@@ -58,9 +79,7 @@ def clean_history(history) -> list[dict]:
 def standalone_question(question: str, history: list[dict]) -> str:
     """Rewrite a follow-up ("What must be done afterwards?") into a self-contained question.
     Only called when there is history."""
-    # the "Sources:" list is noise for rewriting, so drop it from the assistant messages
-    chat = "\n".join(f"{m['role']}: {m['content'].split('Sources:')[0].strip()}"
-                     for m in history[-HISTORY_FOR_REWRITE * 2:])
+    chat = "\n".join(f"{m['role']}: {m['content'].strip()}" for m in history[-HISTORY_FOR_REWRITE * 2:])
     reply = ollama.chat(
         model=CHAT_MODEL,
         options={"temperature": 0, "num_predict": 80},
@@ -152,7 +171,7 @@ def answer(question: str, history):
     reply = ""
     for part in stream:
         reply += part["message"]["content"]
-        yield render(steps, "Working…", "pending", reply)
+        yield render(steps, "Working…", "pending", without_sources(reply))
     marks["answer"] = time.perf_counter() - t
     steps[-1] = f"✓ Generating answer ({marks['answer']:.1f} s)"
     total = time.perf_counter() - t0
@@ -160,9 +179,8 @@ def answer(question: str, history):
     if NOT_FOUND in reply:
         yield render(steps, f"Done in {total:.1f} s", "done", NOT_FOUND + footer(total, marks))
         return
-    sources = sorted({f"{m['source']} - {m['heading']} ({pages(m)})" for _, m in hits})
     yield render(steps, f"Done in {total:.1f} s", "done",
-                 f"{reply}\n\nSources: {', '.join(sources)}" + footer(total, marks))
+                 without_sources(reply) + format_sources(hits) + footer(total, marks))
 
 
 if __name__ == "__main__":

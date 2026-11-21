@@ -24,7 +24,8 @@ After mounting the new camera and setting the IP address, the following steps mu
 2. Run 30 reference parts and check the match score.
 [7.5 Replacing the camera, pages 13-14]
 
-Sources: FC-200 Operating and Service Manual - 7.5 Replacing the camera (pages 13-14)
+Sources
+- FC-200 Operating and Service Manual NV-FC200-OSM-001: 7.5 Replacing the camera (pages 13-14)
 
 ⏱ 33.7 s
 ```
@@ -78,7 +79,7 @@ The answer is capped at 400 tokens (roughly 300 words) so a runaway answer canno
 ### Step 6: finish
 When the model stops, the app:
 - replaces the answer with just "I couldn't find that in the document." if the model produced that sentence,
-- otherwise appends a **Sources** line listing the section and pages of the chunks it was given,
+- otherwise appends a **Sources** block: one line per manual, listing the sections and pages of the chunks the model was given. Identical entries are shown once. If the model wrote a "Sources:" line of its own, the app removes it first, so the list never appears twice,
 - adds the **⏱ total time**, and closes the progress bubble ("Done in 33.7 s").
 
 ## Where the time goes

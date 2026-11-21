@@ -110,9 +110,14 @@ Two distance rules, both based on the cosine distance (0 = same meaning, higher 
 - **Decision:** the model gets strict rules: answer **only** from the provided passages; if the answer is not there, reply exactly "I couldn't find that in the document."; give procedures in full and in order; cite section and pages; earlier chat messages are context only.
 - **Why:** this is what turns a general chatbot into a trustworthy "answers from the document" tool. A fixed refusal sentence lets the app recognise a refusal reliably: if the reply contains that sentence, the app shows only the sentence and no sources.
 - **Settings:** temperature 0.1 for answers (steady and factual).
+- **No repetition (added later):** one rule says "do not repeat the same information within one answer, but always include every fact the question asks for, even if an earlier message mentioned it". It was added after a two-part question ("where is the camera set up? what does this camera capture?") produced an answer that described each setup twice.
+  - *Lesson from testing:* a first, shorter wording ("answer each part of the question once and do not repeat information") made follow-up answers terse. "What must be done afterwards?" lost a step, and the next follow-up named the wrong manual. The scoped wording above fixed that. Small changes to the rules can change several behaviours at once, so re-run the follow-up questions after any change.
+- **The Sources block is added by the app, not the model:**
+  - The app appends one **Sources** block: one line per manual, with its sections and pages. Identical entries appear once.
+  - Earlier, the model also wrote its own "Sources:" line, because the previous answers sent back to it as chat history still contained the app's Sources line and it copied the pattern. Now the Sources block is removed from the history before it is reused, and any "Sources:" line the model writes anyway is cut.
 - **Trade-off:**
   - The rules are a request, not a guarantee. A model can still err.
-  - The "Sources" line lists the sections the model was *given*, not only the ones it actually used.
+  - The "Sources" block lists the sections the model was *given*, not only the ones it actually used.
   - Answers are capped at 400 tokens, so a very long answer may be cut off.
 
 ## Rewriting follow-up questions
