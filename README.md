@@ -59,6 +59,9 @@ tests/questions.md  # test questions
 chroma_db/          # generated index (not committed)
 ```
 
+## Documentation
+Full documentation for non-specialists, from the basics to design decisions and future ideas, is in [docs/](docs/README.md): [overview](docs/00-overview.md), [concepts](docs/01-concepts-from-zero.md), [architecture](docs/02-architecture.md), [life of a question](docs/03-life-of-a-question.md), [design decisions](docs/04-design-decisions.md), [troubleshooting](docs/05-running-and-troubleshooting.md), [limits and future](docs/06-limits-and-future.md) and a [glossary](docs/glossary.md).
+
 ## Data and licenses
 See [DATA_SOURCES.md](DATA_SOURCES.md). Raw data in `data/raw/` and the generated `chroma_db/` are not committed.
 
