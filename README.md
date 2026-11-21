@@ -49,14 +49,25 @@ Other:
 
 ## Project structure
 ```
-app.py              # Gradio chat app (retrieval, answering, progress trace)
-scripts/ingest.py   # PDFs in data/raw/ -> chunks -> embeddings -> chroma_db/
-scripts/download_data.py  # placeholder: the PDFs are supplied locally, nothing is downloaded
-data/raw/           # your input PDFs (not committed)
-data/docs/          # reserved, currently unused
-data/templates/     # reserved, currently unused
-tests/questions.md  # test questions
-chroma_db/          # generated index (not committed)
+automation-rag-assistant/
+├── app.py               # Gradio chat app (retrieval, answering, progress trace)
+├── requirements.txt     # Python dependencies
+├── README.md            # this file
+├── CLAUDE.md            # project rules
+├── DATA_SOURCES.md      # every data source, with license and credit
+├── .gitignore           # keeps data/raw/, chroma_db/, .venv/ and .env out of git
+├── scripts/
+│   ├── ingest.py        # PDFs in data/raw/ -> chunks -> embeddings -> chroma_db/
+│   └── download_data.py # placeholder: the PDFs are supplied locally, nothing is downloaded
+├── docs/                # documentation for non-specialists (start at docs/README.md)
+├── tests/
+│   └── questions.md     # test questions to try by hand
+├── data/
+│   ├── raw/             # your input PDFs (not committed)
+│   ├── docs/            # reserved, currently unused
+│   └── templates/       # reserved, currently unused
+├── chroma_db/           # generated search index (not committed)
+└── .venv/               # Python environment (not committed)
 ```
 
 ## Documentation

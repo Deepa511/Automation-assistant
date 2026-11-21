@@ -92,16 +92,21 @@ The chatbot never sends your questions or the manuals' text to a cloud AI servic
 ## Folders and files
 
 ```
-app.py                  The chat app: question in, answer out (Job 2)
-scripts/ingest.py       Prepares the library from the PDFs (Job 1)
+app.py                    The chat app: question in, answer out (Job 2)
+requirements.txt          The Python packages the project needs
+scripts/ingest.py         Prepares the library from the PDFs (Job 1)
 scripts/download_data.py  Placeholder. The PDFs are supplied locally
-data/raw/               The input PDFs (not committed to git)
-chroma_db/              The generated index (not committed to git)
-tests/questions.md      Questions to try by hand
-docs/                   This documentation
+data/raw/                 The input PDFs (not committed to git)
+chroma_db/                The generated index (not committed to git)
+tests/questions.md        Questions to try by hand
+docs/                     This documentation
+README.md                 Short project introduction and setup steps
+CLAUDE.md                 The project rules (local and free only, fictional data only, ...)
+DATA_SOURCES.md           Every data source with its license and credit
+.gitignore                Keeps data/raw/, chroma_db/, .venv/ and .env out of git
 ```
 
-Two folders, `data/docs/` and `data/templates/`, exist but are unused.
+Two folders, `data/docs/` and `data/templates/`, exist but are unused. Do not confuse `data/docs/` (reserved for input documents, empty) with `docs/` (this documentation).
 
 ## Where things are remembered
 
