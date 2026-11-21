@@ -1,4 +1,5 @@
 """Gradio chat app: answers questions only from the ingested documents."""
+import os
 from pathlib import Path
 
 import chromadb
@@ -7,9 +8,12 @@ import ollama
 
 DB_DIR = Path(__file__).resolve().parent / "chroma_db"
 EMBED_MODEL = "nomic-embed-text"
-CHAT_MODEL = "qwen2.5:7b"
-TOP_K = 4
-MAX_DISTANCE = 0.6  # cosine distance; higher means less similar. Tune with tests/questions.md
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "qwen2.5:7b")
+KEEP_ALIVE = "30m"   # keep models loaded between questions
+NUM_PREDICT = 400    # max answer length in tokens (CPU generation is slow)
+TOP_K = 3
+MAX_DISTANCE = 0.6   # cosine distance; higher means less similar. Tune with tests/questions.md
+RELATIVE_CUTOFF = 0.1  # drop chunks more than this farther away than the best chunk
 HISTORY_FOR_REWRITE = 4  # exchanges (user + assistant) used to rewrite a follow-up question
 HISTORY_FOR_ANSWER = 2   # exchanges passed to the answering call for conversational context
 NOT_FOUND = "I couldn't find that in the document."
@@ -55,7 +59,8 @@ def standalone_question(question: str, history: list[dict]) -> str:
                      for m in history[-HISTORY_FOR_REWRITE * 2:])
     reply = ollama.chat(
         model=CHAT_MODEL,
-        options={"temperature": 0},
+        options={"temperature": 0, "num_predict": 80},
+        keep_alive=KEEP_ALIVE,
         messages=[{"role": "user", "content": (
             "Rewrite the last user question as one standalone question that can be understood "
             "without the conversation. Replace words like it, that, this, them, afterwards or "
@@ -71,31 +76,42 @@ def standalone_question(question: str, history: list[dict]) -> str:
     return reply or question
 
 
-def answer(question: str, history) -> str:
+def answer(question: str, history):
+    """Generator: yields the growing answer so Gradio shows it while it is being written."""
     history = clean_history(history)
     search_question = standalone_question(question, history)
     q_emb = ollama.embed(model=EMBED_MODEL, input=search_question)["embeddings"]
     res = collection.query(query_embeddings=q_emb, n_results=TOP_K)
-    docs, metas, dists = res["documents"][0], res["metadatas"][0], res["distances"][0]
+    hits = list(zip(res["documents"][0], res["metadatas"][0], res["distances"][0]))
 
-    if not docs or min(dists) > MAX_DISTANCE:
-        return NOT_FOUND
+    if not hits or hits[0][2] > MAX_DISTANCE:
+        yield NOT_FOUND
+        return
+    # keep only chunks close to the best one: a shorter prompt is much faster on CPU
+    hits = [h for h in hits if h[2] <= hits[0][2] + RELATIVE_CUTOFF]
 
-    context = "\n\n".join(f"[{label(m)}]\n{d}" for d, m in zip(docs, metas))
-    reply = ollama.chat(
+    context = "\n\n".join(f"[{label(m)}]\n{d}" for d, m, _ in hits)
+    stream = ollama.chat(
         model=CHAT_MODEL,
-        options={"temperature": 0.1},
+        options={"temperature": 0.1, "num_predict": NUM_PREDICT},
+        keep_alive=KEEP_ALIVE,
+        stream=True,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             *history[-HISTORY_FOR_ANSWER * 2:],
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"},
         ],
-    )["message"]["content"]
+    )
+    reply = ""
+    for part in stream:
+        reply += part["message"]["content"]
+        yield reply
 
     if NOT_FOUND in reply:
-        return NOT_FOUND
-    sources = sorted({f"{m['source']} - {m['heading']} ({pages(m)})" for m in metas})
-    return f"{reply}\n\nSources: {', '.join(sources)}"
+        yield NOT_FOUND
+        return
+    sources = sorted({f"{m['source']} - {m['heading']} ({pages(m)})" for _, m, _ in hits})
+    yield f"{reply}\n\nSources: {', '.join(sources)}"
 
 
 if __name__ == "__main__":
