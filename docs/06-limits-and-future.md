@@ -57,7 +57,7 @@ Ideas, roughly in the order we would consider them. "Effort" is a rough guess (s
 
 ### Bigger ideas
 
-The long-term idea in `PLAN.md` is to treat this index as a **knowledge layer for an automation cell**: one knowledge base with several front ends on top (chat assistant, an operator-panel assistant, engineering search, alarm diagnostics, commissioning help, automatic documentation, change-impact analysis). The chat assistant described here is the first of those.
+The long-term idea for this project is to treat this index as a **knowledge layer for an automation cell**: one knowledge base with several front ends on top (chat assistant, an operator-panel assistant, engineering search, alarm diagnostics, commissioning help, automatic documentation, change-impact analysis). The chat assistant described here is the first of those.
 
 | Idea | Why | Effort |
 |---|---|---|

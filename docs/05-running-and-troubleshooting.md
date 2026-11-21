@@ -76,7 +76,7 @@ Normal. The model is reading the prompt before writing. See [03](03-life-of-a-qu
 Check the cited section and pages in the PDF. Tables are the most likely cause (see [06](06-limits-and-future.md)). An answer cut off in mid-sentence reached the 400-token limit.
 
 **The page looks the same after I changed a setting or the code.**
-The old copy of the app is probably still running. Stop it (`Ctrl+C`), check nothing else uses port 7860, start it again, then refresh the browser (`Ctrl+F5`). The page title shows the trace style in use ("trace style: bubble" or "status").
+The old copy of the app is probably still running. Stop it (`Ctrl+C`), check nothing else uses port 7860, start it again, then refresh the browser (`Ctrl+F5`). To tell which trace style a running copy uses, watch how it displays progress: the bubble style shows a collapsible "Working…" box, the status style shows plain text that disappears when the answer starts.
 
 **A new copy starts on another port, or the old page keeps showing.**
 Gradio quietly picks another port if 7860 is busy, while your browser tab stays on the old one. Stop the old copy first.
