@@ -21,3 +21,30 @@ Run these manually in the app. Questions 1-12 come from the dataset README (answ
 14. Write me a poem about robots.
 15. What is the torque spec for an M8 bolt on a Volvo engine?
 16. How do I configure the arivis Vision4D viewer?
+
+## Follow-up questions
+Each sequence is asked in one chat, in order, without restarting. Every question after the first depends on the one before it.
+
+**A. Camera replacement**
+1. How do I replace the camera? (all 7 steps, pages 13-14)
+2. What must be done afterwards? (hand-eye calibration, teach the reference position, run 30 reference parts and check the match score)
+3. Which document is that from? (FC-200 Operating and Service Manual)
+
+**B. Vision result code**
+1. What does vision result code 12 mean?
+2. What should the robot do in that case? (answer about code 12, not a generic answer)
+
+**C. Calibration**
+1. How often must a nutrunner be calibrated?
+2. Who does that? (follow-up about the nutrunner calibration, see the maintenance plan)
+
+**D. Backups**
+1. What is the known issue with automatic backups in CCP 3.4?
+2. How can I work around it? (answer about that backup issue)
+
+**E. Out-of-scope follow-ups (must still refuse)**
+1. How do I replace the camera?
+2. How much does a new one cost? (should reply "I couldn't find that in the document." The manuals have no prices.)
+
+1. What is the capital of France? (refused)
+2. And what is its population? (refused)
