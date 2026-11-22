@@ -184,4 +184,4 @@ def answer(question: str, history):
 
 
 if __name__ == "__main__":
-    gr.ChatInterface(answer, title=f"AiCP: Automation Intelligence and Control Platform").launch(share=True)
+    gr.ChatInterface(answer, title=f"AiCP: Automation Intelligence and Control Platform").launch()
