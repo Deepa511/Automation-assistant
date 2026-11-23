@@ -11,10 +11,10 @@ An honest list of what does not work well today, followed by ideas for what to d
 | 3 | **Exact codes can be missed** | With meaning-based search alone, "What does event 4012 mean?" did not retrieve the chunk containing 4012 | Measured. Fixed by hybrid search, which was reverted |
 | 4 | **The refusal gate is weak** | "What is the capital of France?" scored 0.59 against a limit of 0.6, so it is refused by the model after a full model call, not instantly. Off-topic questions that sound on-topic ("How much does a new camera cost?") also pass the gate and rely on the model to refuse | Measured |
 | 5 | **The rewrite step runs on every follow-up** | Costs 7 to 11 seconds, and can add words the user did not type (it added a document number to a standalone question). It also depends heavily on how the previous answer is worded: when answers became shorter in a test, it picked the wrong topic for "What must be done afterwards?" | Measured |
-| 6 | **"Sources" lists what the model was given** | It can list a section the answer did not actually use (identical entries are shown only once, grouped per manual) | Observed |
+| 6 | **"Sources" can still be broader than the answer** | Only sections whose title appears in the answer are listed. If the model cites by file name only and names no section, all retrieved sections are listed | Observed |
 | 7 | **Answers are capped at 400 tokens** | A very long answer may be cut off | By design |
 | 8 | **Limited reasoning across documents** | A question that needs facts from several manuals, or a chain of facts, works only if all the right passages land in the top three | General property of this design. Not systematically tested |
-| 9 | **No automated tests** | Quality is checked by hand with `tests/questions.md` | The file lists 16 questions. The follow-up sequences were reverted together with hybrid search |
+| 9 | **No automated tests** | Quality is checked by hand with `tests/questions.md` | The file lists 16 questions |
 | 10 | **Built around these manuals' layout** | The cleaning and chunking assume numbered headings, a repeated page header, and dotted contents pages | By design. Other layouts may need adjustments |
 | 11 | **Single user, local only** | One person on one laptop, no login | By design |
 | 12 | **No model comparison was ever done** | `qwen2.5:7b` was chosen by project rule | **Not tested** |
@@ -27,7 +27,7 @@ Ideas, roughly in the order we would consider them. "Effort" is a rough guess (s
 
 | Idea | Why | Effort | Notes |
 |---|---|---|---|
-| **Exact step labels** | The "Generating answer…" label hides a long silent phase where the model reads the prompt. Replace it with exact steps: rewriting the question, embedding the question, searching N chunks, *reading* the prompt (with the number of tokens), *writing* the answer (with tokens per second) | Small | **Designed and agreed, then postponed to version 2.** Ollama's final message already provides the exact reading and writing times and token counts, so the numbers can be real, not estimates |
+| **Token counts under the answer** | The footer shows only the total time. Ollama's final message already provides the reading and writing token counts and times, so they could be shown | Small | Offered, not requested. The detailed step labels were dropped in favour of the simple bubble |
 
 ### Quality
 
@@ -35,9 +35,9 @@ Ideas, roughly in the order we would consider them. "Effort" is a rough guess (s
 |---|---|---|---|
 | **Hybrid search (keyword + meaning)** | Finds exact terms such as "event 4012" and "result code 12" reliably | Small (about 25 lines) | Already built. Restore with `git revert 7f533a1`. Test it against the answers you prefer before keeping it |
 | **Skip the rewrite when not needed** | Saves about 10 seconds and stops the rewrite from adding words. Only rewrite when the question contains reference words ("it", "that", "afterwards") or is very short | Small | Proposed, not built |
-| **Table-aware chunking** | Keep each table together and repeat its header row, so the model reads rows correctly | Medium | Would address limit 2 |
+| **Table-aware chunking (PDF to Markdown)** | Keep each table together and repeat its header row, so the model reads rows correctly | Medium | **Built and tested, not kept.** It fixed limit 2 on the test set |
+| **Neighbouring chunks for long procedures** | Add the chunks next to a retrieved chunk of the same section, since procedures span pages | Small | Built for the best hit (see [04](04-design-decisions.md#answer-quality-changes-in-the-chat)); could be extended to every hit |
 | **Tighter refusal gate** | A limit of about 0.5 would refuse clearly off-topic questions instantly | Small | Collect more test questions first so valid ones are not refused |
-| **Show only the sources actually cited** | Cleaner and more honest "Sources" line | Small | Parse the `[section, pages]` citations from the answer |
 | **Concise-answer instruction** | A "be concise" line in the rules shortens answers and the wait | Small | Trade-off: less detail |
 
 ### Speed

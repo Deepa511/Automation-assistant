@@ -9,16 +9,9 @@ The example:
 
 ## What you see on screen
 
-The chat shows a progress bubble while the system works, then the answer, then a time line. With the default display (`TRACE_STYLE=bubble`) the follow-up looks like this when finished:
+While the system works, the chat shows a small one-line bubble with the current step ("Rewriting question…", "Retrieving chunks…", "Generating answer…"). The bubble disappears when the first words of the answer appear. The finished follow-up looks like this:
 
 ```
-Done in 33.7 s            (collapsible bubble)
-  ✓ Rewriting question (6.9 s)
-     → "What must be done after replacing the camera?"
-  ✓ Retrieving chunks (0.1 s)
-     → 7.5 Replacing the camera (pages 13-14)
-  ✓ Generating answer (26.7 s)
-
 After mounting the new camera and setting the IP address, the following steps must be done:
 1. Run the hand-eye calibration and teach the reference position.
 2. Run 30 reference parts and check the match score.
@@ -94,13 +87,8 @@ Measured examples on the development laptop (CPU only):
 
 Almost all of the time is the AI model working on the CPU. Searching is negligible. When free memory is low, the computer slows down further, so closing other programs helps.
 
-## The two display styles
+## What you see while waiting
 
-| Setting | What you see while waiting |
-|---|---|
-| `TRACE_STYLE=bubble` (default) | A collapsible bubble listing each step as it happens. It stays above the answer so you can reopen it later |
-| `TRACE_STYLE=status` | A plain status text that is replaced by the answer once the first word arrives. Per-step times appear in the line below the answer |
-
-Both exist because we wanted to compare them in use. See [Design decisions](04-design-decisions.md#progress-trace-and-timing).
+A one-line bubble names the current step and is replaced by the answer once the first word arrives. The total time stays in the line below the answer. See [Design decisions](04-design-decisions.md#progress-trace-and-timing).
 
 Next: [04 Design decisions](04-design-decisions.md), the reasons behind each choice.

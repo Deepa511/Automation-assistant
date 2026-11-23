@@ -1,18 +1,20 @@
 # automation-rag-assistant
 
 ## Overview
-Prototype RAG chatbot for an assembly/fastening process (torque tightening). It answers questions only from the PDF manuals you give it, runs fully locally, and is free to use.
+Prototype RAG assistant for an assembly/fastening process (torque tightening). It answers only from the PDF manuals you give it, runs fully locally, and is free to use.
 
 ## Features
 - Answers only from the documents; replies "I couldn't find that in the document." otherwise
 - Section-aware chunking: a section can span several pages, so procedures are not cut off at a page break
 - Citations with document, section and page range
 - Follow-up questions ("What must be done afterwards?") using conversation context
-- Live progress steps while it works, and the total response time under every answer
+- A short progress bubble ("Retrieving chunks…", "Generating answer…") while it works, and the total response time under every answer
+- The chat window fills the browser window (zoom out to see a long conversation)
+- Asks for your name in a pop-up and greets you personally; greetings and thanks ("hi", "thanks") get an instant reply without calling the model
 
 ## Tech stack
 - Ollama: qwen2.5:7b (chat), nomic-embed-text (embeddings)
-- ChromaDB (vector store), Gradio (chat UI), pypdf (PDF text)
+- ChromaDB (vector store), Gradio (UI), pypdf (PDF text)
 
 ## Setup
 Windows PowerShell, from the project folder.
@@ -40,7 +42,6 @@ Windows PowerShell, from the project folder.
 Open http://127.0.0.1:7860. Restart the app after changing `app.py`.
 
 Optional settings (environment variables, read at start-up):
-- `TRACE_STYLE`: `bubble` (default, collapsible trace bubble) or `status` (status line that disappears), for example `$env:TRACE_STYLE="status"`.
 - `CHAT_MODEL`: another Ollama model, default `qwen2.5:7b`.
 
 Other:
@@ -50,9 +51,10 @@ Other:
 ## Project structure
 ```
 automation-rag-assistant/
-├── app.py               # Gradio chat app (retrieval, answering, progress trace)
+├── app.py               # Gradio chat app (retrieval, answering, progress bubble)
 ├── requirements.txt     # Python dependencies
 ├── README.md            # this file
+├── assets/              # agent avatar
 ├── CLAUDE.md            # project rules
 ├── DATA_SOURCES.md      # every data source, with license and credit
 ├── .gitignore           # keeps data/raw/, chroma_db/, .venv/ and .env out of git

@@ -93,6 +93,7 @@ The chatbot never sends your questions or the manuals' text to a cloud AI servic
 
 ```
 app.py                    The chat app: question in, answer out (Job 2)
+assets/                   The agent avatar
 requirements.txt          The Python packages the project needs
 scripts/ingest.py         Prepares the library from the PDFs (Job 1)
 scripts/download_data.py  Placeholder. The PDFs are supplied locally

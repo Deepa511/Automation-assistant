@@ -31,11 +31,10 @@ Open http://127.0.0.1:7860 in a browser. Stop the app with `Ctrl+C`. After chang
 
 ## Settings
 
-Two settings are read from environment variables when the app starts:
+One setting is read from an environment variable when the app starts:
 
 | Setting | Values | Default | Example |
 |---|---|---|---|
-| `TRACE_STYLE` | `bubble` or `status` | `bubble` | `$env:TRACE_STYLE="status"` |
 | `CHAT_MODEL` | any model name in `ollama list` | `qwen2.5:7b` | `$env:CHAT_MODEL="qwen2.5:3b"` |
 
 Set the variable, then start the app in the **same PowerShell window**. A setting made in another window has no effect.
@@ -76,7 +75,7 @@ Normal. The model is reading the prompt before writing. See [03](03-life-of-a-qu
 Check the cited section and pages in the PDF. Tables are the most likely cause (see [06](06-limits-and-future.md)). An answer cut off in mid-sentence reached the 400-token limit.
 
 **The page looks the same after I changed a setting or the code.**
-The old copy of the app is probably still running. Stop it (`Ctrl+C`), check nothing else uses port 7860, start it again, then refresh the browser (`Ctrl+F5`). To tell which trace style a running copy uses, watch how it displays progress: the bubble style shows a collapsible "Working…" box, the status style shows plain text that disappears when the answer starts.
+The old copy of the app is probably still running. Stop it (`Ctrl+C`), check nothing else uses port 7860, start it again, then refresh the browser (`Ctrl+F5`).
 
 **A new copy starts on another port, or the old page keeps showing.**
 Gradio quietly picks another port if 7860 is busy, while your browser tab stays on the old one. Stop the old copy first.

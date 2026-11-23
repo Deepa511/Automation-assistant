@@ -9,7 +9,7 @@ Every significant choice, with the reasoning, the price paid, and what else coul
 
 A note on honesty: where a choice was made by a project rule or by convenience rather than by comparing options, this page says so. In particular, **no side-by-side comparison of AI models was ever run**.
 
-Contents: [Local and free only](#local-and-free-only) · [Ollama](#ollama-to-run-the-models) · [The answering model](#the-answering-model-qwen257b) · [The embedding model](#the-embedding-model-nomic-embed-text) · [ChromaDB](#chromadb-for-search-storage) · [Gradio](#gradio-for-the-screen) · [Section-aware chunking](#section-aware-chunking) · [Cleaning the PDF text](#cleaning-the-pdf-text) · [How many chunks to use](#how-many-chunks-to-use) · [When is a match close enough?](#when-is-a-match-close-enough) · [The answering rules](#the-answering-rules-and-the-refusal-sentence) · [Rewriting follow-up questions](#rewriting-follow-up-questions) · [How much chat history](#how-much-chat-history-is-used) · [Streaming, answer limit, keep-alive](#streaming-answer-length-limit-and-keeping-the-model-loaded) · [Progress trace and timing](#progress-trace-and-timing) · [Tried and reversed](#tried-and-reversed)
+Contents: [Local and free only](#local-and-free-only) · [Ollama](#ollama-to-run-the-models) · [The answering model](#the-answering-model-qwen257b) · [The embedding model](#the-embedding-model-nomic-embed-text) · [ChromaDB](#chromadb-for-search-storage) · [Gradio](#gradio-for-the-screen) · [Section-aware chunking](#section-aware-chunking) · [Cleaning the PDF text](#cleaning-the-pdf-text) · [How many chunks to use](#how-many-chunks-to-use) · [When is a match close enough?](#when-is-a-match-close-enough) · [The answering rules](#the-answering-rules-and-the-refusal-sentence) · [Rewriting follow-up questions](#rewriting-follow-up-questions) · [How much chat history](#how-much-chat-history-is-used) · [Streaming, answer limit, keep-alive](#streaming-answer-length-limit-and-keeping-the-model-loaded) · [Progress trace and timing](#progress-trace-and-timing) · [Answer quality changes](#answer-quality-changes-in-the-chat) · [Tried and reversed](#tried-and-reversed)
 
 ---
 
@@ -148,14 +148,20 @@ Two distance rules, both based on the cosine distance (0 = same meaning, higher 
 
 ## Progress trace and timing
 
-- **Decision:** while the system works, show which step is running with the time each took, and show the total time under every answer.
-- **Why:** on this laptop a question takes about 20 to 60 seconds. With nothing on screen, a user cannot tell a working system from a frozen one, and cannot tell *which part* is slow. The trace also helps debugging: it shows the rewritten question and which sections were retrieved.
-- **Two styles, on purpose:** the owner wanted to compare them in real use.
-  - **Bubble (default):** a collapsible "Working..." bubble that lists the steps and stays above the answer.
-  - **Status:** a plain status text that disappears when the answer starts, with per-step times in the line under the answer.
-  - Switch with the `TRACE_STYLE` setting.
+- **Decision:** while the system works, show a small one-line bubble with the current step ("Retrieving chunks…", "Generating answer…"). It disappears when the answer starts, and the total time is shown under every answer.
+- **Why:** on this laptop a question takes about 20 to 60 seconds. With nothing on screen, a user cannot tell a working system from a frozen one. A detailed trace (every step, times, retrieved sections) was tried first and replaced by this simpler bubble, because users do not need those details.
 - **Implementation detail that matters:** the trace bubbles and the `⏱` line are stripped from the chat history before it is used again, so they never leak into the AI's prompts.
-- **Known imprecision:** the "Generating answer…" label covers both the silent *reading* phase and the visible *writing* phase. A more exact set of labels is planned for a later version (see [06 Limits and future](06-limits-and-future.md)).
+- **Known imprecision:** the "Generating answer…" label covers both the silent *reading* phase and the visible *writing* phase. The exact labels with token counts were dropped in favour of this simple bubble (see [06 Limits and future](06-limits-and-future.md)).
+
+## Answer quality changes in the chat
+
+Small changes made after testing, all in `app.py`:
+
+- **Neighbouring chunks:** the chunk before and the chunk after the best hit are added when they belong to the same section, in reading order. A procedure that continues in the next chunk is no longer cut off. Trade-off: a slightly longer prompt, and so a slightly slower answer, when it applies.
+- **Sources list only what the answer cites:** a section is listed when its title appears in the answer. If the answer names none, all retrieved sections are listed.
+- **Refusal rule:** the model refuses only when the topic is absent from the context. If the context covers the topic but gives no step-by-step instructions, it says what the context does state. This fixed a refusal of "how to do a vision backup?" although the right section was the top hit.
+- **A real answer is never wiped out:** if the reply contains the refusal sentence together with real content (for example for one part of the question), the content is kept. Only a reply that is essentially just the refusal is replaced by the standard sentence.
+- **The embedding model stays loaded** for 30 minutes, like the chat model, so the first question after a pause does not pay a reload delay.
 
 ## Tried and reversed
 
@@ -167,5 +173,6 @@ These were built and tested, then deliberately removed. They can be restored.
 | **Follow-up test questions** | A test file with multi-turn sequences | Was added with hybrid search and reverted together | Reverted. Restore with `git revert 8135a67` |
 | **Smaller model for the rewrite step** | Use `qwen2.5:3b` just for rewriting follow-ups, to save time | Never used: the owner chose to keep one model | Not kept |
 | **Show whole answer at once** | A setting to disable streaming | Would not shorten the wait | Declined |
+| **PDF to Markdown** | Converted the PDFs with pymupdf4llm so tables keep their columns; each table kept whole, or split by rows with the header row repeated | The 16 test questions answered as before and table rows were read correctly, but the owner preferred to keep the plain-text pipeline | Not kept. Can be rebuilt if table accuracy becomes the priority |
 
 Next: [05 Running and troubleshooting](05-running-and-troubleshooting.md).
