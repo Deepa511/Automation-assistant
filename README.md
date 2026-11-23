@@ -3,6 +3,15 @@
 ## Overview
 Prototype RAG assistant for an assembly/fastening process (torque tightening). It answers only from the PDF manuals you give it, runs fully locally, and is free to use.
 
+> **All data in this project is fictional.** The manuals (TC-6000, CCP, VS-Guide, FC-200 and so on, from the fictional company "Norvik Automation AB") are made-up documents. **No company data, names or part numbers were used.** The answers in the screenshots come from these fictional manuals.
+
+## Screenshots
+The app asks for your name, then answers only from the manuals and cites the section and page.
+
+![Name pop-up of the Automation Assistant](docs/images/name-popup.png)
+
+![A chat answer with its source and response time](docs/images/chat-answer.png)
+
 ## Features
 - Answers only from the documents; replies "I couldn't find that in the document." otherwise
 - Section-aware chunking: a section can span several pages, so procedures are not cut off at a page break
@@ -79,7 +88,7 @@ Full documentation for non-specialists, from the basics to design decisions and 
 See [DATA_SOURCES.md](DATA_SOURCES.md). Raw data in `data/raw/` and the generated `chroma_db/` are not committed.
 
 ## Disclaimer
-Only open data and fictional documents are used. No company data, names or part numbers.
+**The documents are fictional.** Only open data and fictional documents are used. No company data, names or part numbers.
 
 ## License
 TBD
