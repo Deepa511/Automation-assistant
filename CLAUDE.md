@@ -1,4 +1,4 @@
-# Project: automation-rag-assistant
+# Project: Automation Assistant
 
 Prototype RAG chatbot for an assembly/fastening process (torque tightening).
 Public GitHub repo.

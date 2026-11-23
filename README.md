@@ -1,4 +1,4 @@
-# automation-rag-assistant
+# Automation Assistant
 
 ## Overview
 Prototype RAG assistant for an assembly/fastening process (torque tightening). It answers only from the PDF manuals you give it, runs fully locally, and is free to use.
@@ -59,7 +59,7 @@ Other:
 
 ## Project structure
 ```
-automation-rag-assistant/
+Automation-assistant/
 ├── app.py               # Gradio chat app (retrieval, answering, progress bubble)
 ├── requirements.txt     # Python dependencies
 ├── README.md            # this file
